@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ReadmeGenius — Generate Beautiful READMEs</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Clash+Display:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --panel: #0f0f16;
+      --border: #1e1e2e;
+      --accent: #00ff88;
+      --accent2: #00cc6a;
+      --blue: #4d9fff;
+      --purple: #9d7fff;
+      --text: #e8e8f0;
+      --muted: #555570;
+      --muted2: #333348;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    header {
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--panel);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      animation: slideDown 0.4s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #000;
+      font-weight: 700;
+    }
+
+    .logo-text {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .logo-text span { color: var(--accent); }
+
+    .header-actions { display: flex; gap: 10px; }
+
+    .btn {
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+
+    .btn-blue {
+      background: rgba(77,159,255,0.1);
+      border: 1px solid rgba(77,159,255,0.3);
+      color: var(--blue);
+    }
+
+    .btn-blue:hover { background: rgba(77,159,255,0.2); }
+
+    /* Layout */
+    .app {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      height: calc(100vh - 65px);
+    }
+
+    /* Form Panel */
+    .form-panel {
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 24px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+
+    .form-panel::-webkit-scrollbar { width: 4px; }
+    .form-panel::-webkit-scrollbar-track { background: transparent; }
+    .form-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .section {
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .field { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="text"], textarea, select {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      resize: none;
+    }
+
+    input[type="text"]:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(0,255,136,0.08);
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23555570' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    /* Tech badges */
+    .badges-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .badge-toggle {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .badge-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .badge-toggle.active {
+      background: rgba(0,255,136,0.1);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Features list */
+    .features-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .feature-item {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .feature-item input { flex: 1; }
+
+    .remove-btn {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .remove-btn:hover { border-color: #ff4444; color: #ff4444; }
+
+    .add-btn {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px dashed var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 8px;
+    }
+
+    .add-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Checkboxes */
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .checkbox-item:hover { border-color: var(--accent); color: var(--text); }
+    .checkbox-item.active { border-color: var(--accent); color: var(--accent); background: rgba(0,255,136,0.05); }
+
+    .checkbox-item input { display: none; }
+
+    /* Preview Panel */
+    .preview-panel {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    .preview-toolbar {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--panel);
+      flex-shrink: 0;
+    }
+
+    .preview-tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .tab {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--muted);
+      border: none;
+      background: transparent;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .tab.active { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+
+    .preview-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px;
+    }
+
+    .preview-content::-webkit-scrollbar { width: 4px; }
+    .preview-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* Markdown preview styles */
+    .md-preview {
+      max-width: 760px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    .md-preview h1 {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .md-preview h2 {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 24px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .md-preview h3 { font-size: 16px; color: var(--text); margin: 16px 0 8px; }
+
+    .md-preview p { color: #aaaacc; margin-bottom: 12px; font-size: 14px; }
+
+    .md-preview code {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 13px;
+      color: var(--accent);
+    }
+
+    .md-preview pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+
+    .md-preview pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .md-preview ul { padding-left: 20px; margin-bottom: 12px; }
+    .md-preview li { color: #aaaacc; font-size: 14px; margin-bottom: 4px; }
+    .md-preview li::marker { color: var(--accent); }
+
+    .md-preview a { color: var(--blue); text-decoration: none; }
+    .md-preview a:hover { text-decoration: underline; }
+
+    .md-preview img { max-width: 100%; border-radius: 8px; }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 12px 0;
+    }
+
+    .badge-img {
+      height: 22px;
+      border-radius: 4px;
+    }
+
+    .md-preview table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+
+    .md-preview th {
+      background: var(--surface);
+      padding: 10px 14px;
+      text-align: left;
+      color: var(--accent);
+      border: 1px solid var(--border);
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .md-preview td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      color: #aaaacc;
+    }
+
+    /* Raw markdown view */
+    .raw-view {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      font-size: 13px;
+      color: var(--text);
+      white-space: pre-wrap;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.8;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--accent);
+      color: #000;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+      z-index: 999;
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">R</div>
+    <div class="logo-text">Readme<span>Genius</span></div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-blue" onclick="copyMarkdown()">📋 Copy Markdown</button>
+    <button class="btn btn-primary" onclick="downloadMarkdown()">⬇ Download .md</button>
+  </div>
+</header>
+
+<div class="app">
+  <!-- FORM PANEL -->
+  <div class="form-panel">
+
+    <div class="section">
+      <div class="section-title">Project Info</div>
+      <div class="field">
+        <label>Project Name *</label>
+        <input type="text" id="projectName" placeholder="My Awesome Project" oninput="generate()"/>
+      </div>
+      <div class="field">
+        <label>Tagline / One-liner *</label>
+        <input type="text" id="tagline" placeholder="A tool that does X beautifully" oninput="generate()"/>
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea id="description" rows="3" placeholder="What does your project do? Who is it for?" oninput="generate()"></textarea>
+      </div>
+      <div class="field">
+        <label>GitHub Repo URL</label>
+        <input type="text" id="repoUrl" placeholder="https://github.com/username/repo" oninput="generate()"/>
+      </div>
+      <div class="field">
+        <label>Live Demo URL</label>
+        <input type="text" id="demoUrl" placeholder="https://yourproject.vercel.app" oninput="generate()"/>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div class="section-title">Tech Stack</div>
+      <div class="badges-grid" id="techBadges">
+        <!-- generated by JS -->
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div class="section-title">Features</div>
+      <div class="features-list" id="featuresList">
+        <div class="feature-item">
+          <input type="text" placeholder="e.g. Dark mode support" oninput="generate()"/>
+          <button class="remove-btn" onclick="removeFeature(this)">×</button>
+        </div>
+      </div>
+      <button class="add-btn" onclick="addFeature()">+ Add Feature</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div class="section-title">Author</div>
+      <div class="field">
+        <label>Your Name</label>
+        <input type="text" id="authorName" placeholder="Arya Utkarsh" oninput="generate()"/>
+      </div>
+      <div class="field">
+        <label>GitHub Username</label>
+        <input type="text" id="githubUser" placeholder="aryautkarsh7" oninput="generate()"/>
+      </div>
+      <div class="field">
+        <label>Twitter / X Handle</label>
+        <input type="text" id="twitter" placeholder="aryautkarsh" oninput="generate()"/>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div class="section-title">Sections to Include</div>
+      <div class="checkbox-grid" id="sectionToggles">
+        <!-- generated by JS -->
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div class="section-title">License</div>
+      <div class="field">
+        <select id="license" onchange="generate()">
+          <option value="MIT">MIT</option>
+          <option value="Apache-2.0">Apache 2.0</option>
+          <option value="GPL-3.0">GPL 3.0</option>
+          <option value="BSD-2-Clause">BSD 2-Clause</option>
+          <option value="ISC">ISC</option>
+          <option value="None">No License</option>
+        </select>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PREVIEW PANEL -->
+  <div class="preview-panel">
+    <div class="preview-toolbar">
+      <div class="preview-tabs">
+        <button class="tab active" onclick="switchTab('preview', this)">Preview</button>
+        <button class="tab" onclick="switchTab('raw', this)">Raw Markdown</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Live preview ✦</div>
+    </div>
+    <div class="preview-content">
+      <div id="previewArea" class="md-preview"></div>
+      <div id="rawArea" class="raw-view" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Copied to clipboard!</div>
+
+<script>
+  // Tech options
+  const techOptions = [
+    'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Vue', 'Next.js',
+    'Node.js', 'Express', 'Python', 'Django', 'Flask', 'MongoDB', 'PostgreSQL',
+    'MySQL', 'Firebase', 'Tailwind', 'Electron', 'Docker', 'GraphQL'
+  ]
+
+  const sectionOptions = [
+    { id: 'demo', label: '🌐 Demo Link' },
+    { id: 'installation', label: '⚙️ Installation' },
+    { id: 'usage', label: '📖 Usage' },
+    { id: 'screenshots', label: '📸 Screenshots' },
+    { id: 'contributing', label: '🤝 Contributing' },
+    { id: 'license', label: '📄 License' },
+    { id: 'contact', label: '📬 Contact' },
+    { id: 'acknowledgements', label: '🙏 Acknowledgements' },
+  ]
+
+  let selectedTech = new Set(['HTML', 'CSS', 'JavaScript'])
+  let selectedSections = new Set(['demo', 'installation', 'usage', 'contributing', 'license', 'contact'])
+  let currentTab = 'preview'
+
+  // Build tech badges
+  const badgesGrid = document.getElementById('techBadges')
+  techOptions.forEach(tech => {
+    const btn = document.createElement('button')
+    btn.className = 'badge-toggle' + (selectedTech.has(tech) ? ' active' : '')
+    btn.textContent = tech
+    btn.onclick = () => {
+      if (selectedTech.has(tech)) selectedTech.delete(tech)
+      else selectedTech.add(tech)
+      btn.classList.toggle('active')
+      generate()
+    }
+    badgesGrid.appendChild(btn)
+  })
+
+  // Build section toggles
+  const sectionGrid = document.getElementById('sectionToggles')
+  sectionOptions.forEach(s => {
+    const item = document.createElement('label')
+    item.className = 'checkbox-item' + (selectedSections.has(s.id) ? ' active' : '')
+    item.innerHTML = `<input type="checkbox" ${selectedSections.has(s.id) ? 'checked' : ''}> ${s.label}`
+    item.onclick = () => {
+      if (selectedSections.has(s.id)) selectedSections.delete(s.id)
+      else selectedSections.add(s.id)
+      item.classList.toggle('active')
+      generate()
+    }
+    sectionGrid.appendChild(item)
+  })
+
+  function addFeature() {
+    const list = document.getElementById('featuresList')
+    const item = document.createElement('div')
+    item.className = 'feature-item'
+    item.innerHTML = `<input type="text" placeholder="Add a feature..." oninput="generate()"/><button class="remove-btn" onclick="removeFeature(this)">×</button>`
+    list.appendChild(item)
+    item.querySelector('input').focus()
+  }
+
+  function removeFeature(btn) {
+    btn.parentElement.remove()
+    generate()
+  }
+
+  function getFeatures() {
+    return [...document.querySelectorAll('.feature-item input')]
+      .map(i => i.value.trim()).filter(Boolean)
+  }
+
+  function getBadgeUrl(tech) {
+    const map = {
+      'HTML': 'HTML5-E34F26?style=flat&logo=html5&logoColor=white',
+      'CSS': 'CSS3-1572B6?style=flat&logo=css3&logoColor=white',
+      'JavaScript': 'JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black',
+      'TypeScript': 'TypeScript-007ACC?style=flat&logo=typescript&logoColor=white',
+      'React': 'React-20232A?style=flat&logo=react&logoColor=61DAFB',
+      'Vue': 'Vue.js-35495E?style=flat&logo=vuedotjs&logoColor=4FC08D',
+      'Next.js': 'Next.js-000000?style=flat&logo=nextdotjs&logoColor=white',
+      'Node.js': 'Node.js-43853D?style=flat&logo=nodedotjs&logoColor=white',
+      'Express': 'Express-404D59?style=flat&logo=express&logoColor=white',
+      'Python': 'Python-3776AB?style=flat&logo=python&logoColor=white',
+      'Django': 'Django-092E20?style=flat&logo=django&logoColor=white',
+      'Flask': 'Flask-000000?style=flat&logo=flask&logoColor=white',
+      'MongoDB': 'MongoDB-4EA94B?style=flat&logo=mongodb&logoColor=white',
+      'PostgreSQL': 'PostgreSQL-316192?style=flat&logo=postgresql&logoColor=white',
+      'MySQL': 'MySQL-005C84?style=flat&logo=mysql&logoColor=white',
+      'Firebase': 'Firebase-FFCA28?style=flat&logo=firebase&logoColor=black',
+      'Tailwind': 'TailwindCSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white',
+      'Electron': 'Electron-191970?style=flat&logo=electron&logoColor=white',
+      'Docker': 'Docker-2496ED?style=flat&logo=docker&logoColor=white',
+      'GraphQL': 'GraphQL-E10098?style=flat&logo=graphql&logoColor=white',
+    }
+    return map[tech] ? `https://img.shields.io/badge/${map[tech]}` : null
+  }
+
+  function generateMarkdown() {
+    const name = document.getElementById('projectName').value || 'My Project'
+    const tagline = document.getElementById('tagline').value || 'An awesome project'
+    const desc = document.getElementById('description').value
+    const repo = document.getElementById('repoUrl').value
+    const demo = document.getElementById('demoUrl').value
+    const author = document.getElementById('authorName').value
+    const github = document.getElementById('githubUser').value
+    const twitter = document.getElementById('twitter').value
+    const license = document.getElementById('license').value
+    const features = getFeatures()
+
+    let md = ''
+
+    // Title & badges
+    md += `# ${name}\n\n`
+    md += `> ${tagline}\n\n`
+
+    // Shields
+    let shields = ''
+    if (github && repo) {
+      const repoPath = repo.replace('https://github.com/', '')
+      shields += `![GitHub stars](https://img.shields.io/github/stars/${repoPath}?style=flat) `
+      shields += `![GitHub forks](https://img.shields.io/github/forks/${repoPath}?style=flat) `
+      shields += `![GitHub issues](https://img.shields.io/github/issues/${repoPath}?style=flat) `
+    }
+    if (license !== 'None') shields += `![License](https://img.shields.io/badge/License-${license}-green.svg) `
+    if (shields) md += shields + '\n\n'
+
+    // Description
+    if (desc) md += `## 📖 About\n\n${desc}\n\n`
+
+    // Demo
+    if (selectedSections.has('demo') && demo) {
+      md += `## 🌐 Live Demo\n\n👉 [${name} Live](${demo})\n\n`
+    }
+
+    // Tech Stack
+    if (selectedTech.size > 0) {
+      md += `## 🛠️ Built With\n\n`
+      md += [...selectedTech].map(t => `- **${t}**`).join('\n')
+      md += '\n\n'
+    }
+
+    // Features
+    if (features.length > 0) {
+      md += `## ✨ Features\n\n`
+      md += features.map(f => `- ✅ ${f}`).join('\n')
+      md += '\n\n'
+    }
+
+    // Screenshots
+    if (selectedSections.has('screenshots')) {
+      md += `## 📸 Screenshots\n\n`
+      md += `![Screenshot](./screenshot.png)\n\n`
+    }
+
+    // Installation
+    if (selectedSections.has('installation')) {
+      md += `## ⚙️ Installation\n\n`
+      md += '```bash\n'
+      if (repo) {
+        const repoName = repo.split('/').pop() || 'project'
+        md += `# Clone the repository\ngit clone ${repo}\ncd ${repoName}\n\n`
+      }
+      if ([...selectedTech].some(t => ['React','Vue','Next.js','Node.js','Express','Electron'].includes(t))) {
+        md += `# Install dependencies\nnpm install\n\n# Run the app\nnpm start\n`
+      } else {
+        md += `# Open index.html in your browser\nopen index.html\n`
+      }
+      md += '```\n\n'
+    }
+
+    // Usage
+    if (selectedSections.has('usage')) {
+      md += `## 📖 Usage\n\n1. Open the application\n2. Follow the on-screen instructions\n3. Enjoy!\n\n`
+    }
+
+    // Contributing
+    if (selectedSections.has('contributing')) {
+      md += `## 🤝 Contributing\n\nContributions are welcome! Feel free to open an issue or submit a PR.\n\n`
+      md += `1. Fork the project\n2. Create your feature branch (\`git checkout -b feature/AmazingFeature\`)\n`
+      md += `3. Commit your changes (\`git commit -m 'Add AmazingFeature'\`)\n`
+      md += `4. Push to the branch (\`git push origin feature/AmazingFeature\`)\n`
+      md += `5. Open a Pull Request\n\n`
+    }
+
+    // License
+    if (selectedSections.has('license') && license !== 'None') {
+      md += `## 📄 License\n\nDistributed under the ${license} License. See \`LICENSE\` for more information.\n\n`
+    }
+
+    // Contact
+    if (selectedSections.has('contact') && author) {
+      md += `## 📬 Contact\n\n**${author}**\n\n`
+      if (github) md += `- GitHub: [@${github}](https://github.com/${github})\n`
+      if (twitter) md += `- Twitter: [@${twitter}](https://twitter.com/${twitter})\n`
+      if (repo) md += `- Project: [${repo}](${repo})\n`
+      md += '\n'
+    }
+
+    // Acknowledgements
+    if (selectedSections.has('acknowledgements')) {
+      md += `## 🙏 Acknowledgements\n\n- [Shields.io](https://shields.io)\n- [GitHub Pages](https://pages.github.com)\n\n`
+    }
+
+    md += `---\n\n*Built with ❤️ by ${author || 'the developer'}*\n`
+
+    return md
+  }
+
+  function renderPreview(md) {
+    // Simple markdown to HTML renderer
+    let html = md
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^> (.+)$/gm, '<p style="color:#888;font-style:italic;border-left:3px solid var(--accent);padding-left:12px">$1</p>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+      .replace(/!\[(.+?)\]\((.+?)\)/g, '<img src="$2" alt="$1"/>')
+      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+      .replace(/^- (.+)$/gm, '<li>$1</li>')
+      .replace(/^(\d+)\. (.+)$/gm, '<li>$1. $2</li>')
+      .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
+      .replace(/!\[(.+?)\]\(https:\/\/img\.shields\.io[^)]+\)/g, m => {
+        const urlMatch = m.match(/\(([^)]+)\)/)
+        return urlMatch ? `<img class="badge-img" src="${urlMatch[1]}" alt="badge"/>` : m
+      })
+      .replace(/^---$/gm, '<hr style="border-color:var(--border);margin:20px 0"/>')
+      .replace(/\n\n/g, '</p><p>')
+
+    // Wrap consecutive badge imgs
+    html = html.replace(/(<img class="badge-img"[^>]+>\s*)+/g, m => `<div class="badge-row">${m}</div>`)
+
+    document.getElementById('previewArea').innerHTML = html
+  }
+
+  function generate() {
+    const md = generateMarkdown()
+    renderPreview(md)
+    document.getElementById('rawArea').textContent = md
+  }
+
+  function switchTab(tab, btn) {
+    currentTab = tab
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+    btn.classList.add('active')
+    document.getElementById('previewArea').style.display = tab === 'preview' ? 'block' : 'none'
+    document.getElementById('rawArea').style.display = tab === 'raw' ? 'block' : 'none'
+  }
+
+  function copyMarkdown() {
+    navigator.clipboard.writeText(generateMarkdown())
+    const toast = document.getElementById('toast')
+    toast.classList.add('show')
+    setTimeout(() => toast.classList.remove('show'), 2500)
+  }
+
+  function downloadMarkdown() {
+    const name = document.getElementById('projectName').value || 'README'
+    const blob = new Blob([generateMarkdown()], { type: 'text/markdown' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = 'README.md'
+    a.click()
+  }
+
+  // Init
+  generate()
+</script>
+</body>
+</html>
